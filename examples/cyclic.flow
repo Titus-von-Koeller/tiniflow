@@ -1,0 +1,10 @@
+#!/usr/bin/env tf
+
+* src = seq 0 0
+* a = annotate a
+* b = annotate b
+* c = annotate c
+* d = while read line; do sleep .1; echo $line; done | nl
+
+% = src | a | b | c | a
+% = c | d

@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+flow="${1?USAGE: $0 FLOW}"
+shift
+
+exec python <( python -m tiniflow.dsl "$flow" ) "$@"

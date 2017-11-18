@@ -1,0 +1,186 @@
+#!/usr/bin/env tf
+
+from networkx import Graph, DiGraph
+
+def is_soninlaw(u, v):
+    if parentage.nodes(data=True)[v]['gender'] != male:
+        return False
+    for parent in [u, *marriage.neighbors(u)]:
+        for child in parentage.successors(parent):
+            for spouse in marriage.neighbors(child):
+                if spouse == v: 
+                    return True
+    return False
+
+def is_mother(u, v):
+    if parentage.nodes(data=True)[v]['gender'] != female:
+        return False
+    for parent in [v, *marriage.neighbors(v)]:
+        for child in parentage.successors(parent):
+            if child == u:
+                return True
+    return False
+
+def is_uncle(u, v):
+    if parentage.nodes(data=True)[v]['gender'] != male:
+        return False
+    for parent in parentage.predecessors(u):
+        for parent in [parent, *marriage.neighbors(parent)]:
+            for gparent in parentage.predecessors(parent):
+                for gparent in [gparent, *marriage.neighbors(gparent)]:
+                    for child in parentage.successors(gparent):
+                        for child in [child, *marriage.neighbors(child)]:
+                            if child == v:
+                                return True
+    return False
+
+def is_brotherinlaw(u, v):
+    if parentage.nodes(data=True)[v]['gender'] != male:
+        return False
+    for parent in parentage.predecessors(u):
+        for parent in [parent, *marriage.neighbors(parent)]:
+            for child in parentage.successors(parent):
+                for spouse in marriage.neighbors(child):
+                    if spouse == v:
+                        return True
+    return False
+
+
+def is_brother(u, v):
+    if parentage.nodes(data=True)[v]['gender'] != male:
+        return False
+    for parent in parentage.predecessors(u):
+        for parent in [parent, *marriage.neighbors(parent)]:
+            for child in parentage.successors(parent):
+                if child == v:
+                    return True
+    return True
+
+def is_stepmother(u, v):
+    if parentage.nodes(data=True)[v]['gender'] != female:
+        return False
+    for parent in parentage.predecessors(u):
+        for stepparent in marriage.neighbors(parent):
+            if stepparent == v and v not in parentage.predecessors(u):
+                return True
+    return False
+
+def is_grandchild(u, v):
+    for parent in [u, *marriage.neighbors(u)]:
+        for child in parentage.successors(parent):
+            for child in [child, *marriage.neighbors(child)]:
+                for gchild in parentage.successors(child):
+                    if gchild == v:
+                        return True
+    return False
+
+def is_grandmother(u, v):
+    if parentage.nodes(data=True)[v]['gender'] != female:
+        return False
+    for parent in parentage.predecessors(u):
+        for parent in [parent, *marriage.neighbors(parent)]:
+            for gparent in parentage.predecessors(parent):
+                for gparent in [gparent, *marriage.neighbors(gparent)]:
+                    if gparent == v:
+                        return True
+    return False
+
+
+def is_grandpa(u, v):
+    if parentage.nodes(data=True)[v]['gender'] != male:
+        return False
+    for parent in parentage.predecessors(u):
+        for parent in [parent, *marriage.neighbors(parent)]:
+            for gparent in parentage.predecessors(parent):
+                for gparent in [gparent, *marriage.neighbors(gparent)]:
+                    if gparent == v:
+                        return True
+    return False
+
+def get_mothers(u):
+    for parent in parentage.predecessors(u):
+        for parent in [parent, *marriage.neighbors(parent)]:
+            if parentage.nodes(data=True)[parent]['gender'] == female:
+                yield parent
+
+partner = 'partner'
+child   = 'child'
+male    = 'male'
+female  = 'female'
+
+marriage  = Graph()
+parentage = DiGraph()
+
+def __edge__(nodes, relationship, *args, **kwargs):
+    if relationship == partner:
+        u, v = nodes
+        marriage.add_edge(u, v)
+    elif relationship == child:
+        u, v = nodes
+        parentage.add_edge(u, v)
+
+def __node__(description, gender, *args, **kwargs):
+    marriage.add_node(description, gender=gender)
+    parentage.add_node(description, gender=gender)
+    return description
+
+# http://gean.wwco.com/grandpa/
+# Many, many years ago when I was twenty-three
+* me = twenty-three year old || male
+
+# I was married to a widow who was pretty as could be.
+* widow = pretty widow married to me || female
+% = me | widow || partner
+
+# This widow had a grown-up daughter who had hair of red.
+* redhead = red-haired grown-up daughter of widow || female
+% = widow | redhead || child
+
+# My father fell in love with her and soon they, too, were wed.
+* dad = my father || male
+% = dad | me || child
+% = dad | redhead || partner
+
+# This made my dad my son-in-law and changed my very life
+assert is_soninlaw(me, dad)
+
+# For my daughter was my mother, 'cause she was my father's wife.
+assert is_mother(me, redhead)
+
+# To complicate the matter, even though it brought me joy
+# I soon became the father of a bouncing baby boy.
+* baby = my son || male
+% = me | baby || child
+
+# My little baby then became a brother-in-law to dad
+# And so became my uncle, though it made me very sad
+assert is_brotherinlaw(baby, dad)
+assert is_uncle(me, baby)
+
+# For if he was my uncle, then that also made him brother
+# To the widow's grown-up daughter, who, of course, was my step-mother.
+assert is_brother(redhead, baby)
+assert is_stepmother(me, redhead)
+
+# My father's wife then had a son who kept them on the run
+* fathers_son = son of father's widow || male
+% = redhead | fathers_son || child
+
+# And he became my grand-child, 'cause he was my daughter's son.
+assert is_grandchild(me, fathers_son)
+
+# My wife is now my mother's mother, and it makes me blue
+assert any(is_mother(mother, widow) for mother in get_mothers(me))
+
+# Because, although she is my wife, she's my grandmother too.
+assert is_grandmother(me, widow)
+
+# If my wife is my grandmother, then I am her grandchild
+# And every time I think of it, it nearly drives me wild
+# For now I have become the strangest case you ever saw
+# (This has got to be the strangest thing I ever saw)
+assert is_grandchild(widow, me)
+
+# As husband of my grandmother, I am my own grandpaw.
+if is_grandpa(me, me):
+    print("OMG, I am actually my own grandpa!")

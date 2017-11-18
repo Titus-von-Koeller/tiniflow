@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+while read rc <&$TF_CTRL_IN
+do 
+    eval "$@"
+    echo $? >&$TF_CTRL_OUT
+done

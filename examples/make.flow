@@ -1,0 +1,45 @@
+#!/usr/bin/env tf
+
+from tiniflow.prologue import WorkflowGroup
+from os import listdir
+
+class WorkflowGroup(WorkflowGroup):
+    def run(self, *args, **kwargs):
+        from sys import argv
+        targets = argv[1:]
+        for target in targets:
+            if target not in self.workflows:
+                raise KeyError(f'no such target: {target}')
+        for target in targets:
+            self.workflows[target].run(*args, **kwargs)
+__workflow__.__class__ = WorkflowGroup
+
+flows = [filename for filename in listdir('.')
+	    if filename.endwith('.flow')]
+
+> clean
+    * pycache = find -iname '__pycache__' -type d -exec rm -rf {} \; 2>/dev/null
+    * images  = find -maxdepth 1 -iname '*.png' -type f -exec rm -rf {} \; 2>/dev/null
+    % = pycache - images -- on.start, on.always
+
+RUN = lambda flow: f"clear && echo 'running {flow}:\n' && timeout 5 ./examples/{flow}"
+
+> test/all
+    * tail = true -- on.start
+    for flow in flows:
+        * run   := {RUN(flow)} -- on.success
+        % tail  = tail - run
+
+for flow in flows:
+    > test/{flow}
+        * run   := {RUN(flow)}
+    
+    > watch/{flow}
+        * wait  := inotifywait -e create,modify tiniflow/*.py ./examples/{flow} 2>/dev/null
+        * run   := {RUN(flow)}
+        * debug := python -m tiniflow.dsl ./examples/{flow}
+
+        % = wait - run - wait -- on.always, on.start
+        % = run - debug       -- on.failure
+
+

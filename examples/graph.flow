@@ -1,0 +1,18 @@
+#!/usr/bin/env tf
+
+* a = annotate a
+* b = annotate b
+* c = annotate c
+* d = annotate d
+* e = annotate e
+
+* src1 = seq 0 1
+* src2 = seq 2 3
+* src3 = seq 4 5
+
+% = src1 | a | b
+% = src2 | a | b
+% = src3 | a | b
+% = b | c
+% = b | d
+% = b | e

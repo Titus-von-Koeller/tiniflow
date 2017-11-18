@@ -1,0 +1,59 @@
+#!/usr/bin/env tf
+
+* a = seq 1 3
+* b = nl
+
+% = a | b
+
+> another example
+    * a = seq 1 3
+    * b = ts
+
+    % = a | b
+
+> another workflow
+    * a = seq 1 3
+    * b = nl
+    * c = ts
+
+    % e = a | b
+    % = e | c
+
+> long linear workflow
+    * tail = seq 1 3
+    for x in range(10):
+        * n = annotate x
+        % tail = tail | n
+
+
+def xyz():
+    * x = annotate x
+    * y = annotate y
+    * z = annotate z
+    % e = x | y | z
+    return e
+
+> longer linear workflow
+    * tail = seq 1 3
+    for x in range(3):
+        % tail = tail | xyz()
+
+> linear workflow with f-strings
+    * tail = seq 1 3
+    for x in range(3):
+        * n := annotate {x}
+        % tail = tail | n
+
+> sigil-changing
+    * a = seq 1 3
+    * b = nl
+    * c = ts
+    * d = annotate d
+    $ nodesep = -
+    % = a - b
+    $$ nodesep = ->
+    % = b -> c
+    % = c -> d
+        
+
+

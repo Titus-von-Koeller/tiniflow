@@ -1,0 +1,9 @@
+#!/usr/bin/env tf
+
+* a = seq 1 10
+* b = grep 3
+* c = grep 5
+* d = ts
+* e = nl
+% = a | b | d
+% = a | c | e

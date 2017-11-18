@@ -1,0 +1,9 @@
+#!/usr/bin/env tf
+
+# definitions
+* a = seq 1 20
+* b = grep 3
+* c = ts
+% = a | b | c
+
+print('starting flow...')
