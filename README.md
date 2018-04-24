@@ -1,4 +1,4 @@
-# 'tini.flow' -- Hey, everybody is still dealing with Shell-scripts...
+# `tini.flow` -- Hey, everybody is still dealing with Shell-scripts...
 
 Shell is powerful, simple, and universal. But Shell is also obscure, baroque, and severely limited. Yet, it is often the most natural way to solve common automation problems.
 Stepping back, Shell scripts are one of the most common ways to implement workflows. Building workflows is a critical and core component of automation.
@@ -9,7 +9,7 @@ This talk will show that it is possible to address the limitations of Shell with
 
 ## Getting Started
 
-For example workflows through the /example folder. Some more detailed tutorials will follow later.
+For example workflows through the `/example` folder. Some more detailed tutorials will follow later.
 
 ### Prerequisites
 
@@ -23,7 +23,7 @@ Not part of any package managers yet, but just clone the repo and get started as
 
 ## Running the tests
 
-'make.flow' encodes all the current testing functionality. The 'watch' targets are especially useful in this regards, as they rerun the chosen test(s) on every change of the 'tiniflow/*.py'-files
+`make.flow` encodes all the current testing functionality. The 'watch' targets are especially useful in this regards, as they rerun the chosen test(s) on every change of the `tiniflow/*.py`-files
 ## Authors
 
 * **Titus von Köller** <!-- - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth) -->
